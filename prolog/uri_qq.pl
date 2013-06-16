@@ -1,4 +1,5 @@
 :- module(uri_qq, [uri/4]).
+:- use_module(library(apply), [maplist/3]).
 :- use_module(library(quasi_quotations)).
 :- use_module(library(readutil), [read_stream_to_codes/2]).
 :- use_module(library(record)).
@@ -16,7 +17,7 @@
 % the smallest structural level.
 
 % represents a URI with more structure than library(uri) provides
-:- record uriqq( scheme:atom=http
+:- record uriqq( scheme
 	       , user
 	       , password
 	       , host
@@ -30,72 +31,100 @@
 % atom_uri(-Atom, +Uri)
 %
 % True if Atom represents the structured Uri.
-atom_uri(Atom, Uri) :-
-	parse_uri(Atom, Components),
-	uri_data(scheme, Components, Scheme),
+atom_uri(Atom, UriQQ) :-
+	var(Atom),
+	uri_uriqq(Uri, UriQQ),
+	uri_components(Atom, Uri).
+atom_uri(Atom, UriQQ) :-
+	atom(Atom),
+	uri_components(Atom, Uri),
+	uri_uriqq(Uri, UriQQ).
 
-	uri_data(authority, Components, Authority),
-	authority_parts(Authority, User, Pass, Host, Port),
 
-	uri_data(path, Components, Path0),
-	adjust_path(Path0, Path),
+% describe relation between uri_components and uriqq terms
+uri_uriqq(Uri, UriQQ) :-
+	scheme(Uri, UriQQ),
+	authority(Uri, UriQQ),
+	path(Uri, UriQQ),
+	search(Uri, UriQQ),
+	fragment(Uri, UriQQ).
 
-	uri_data(search, Components, Search0),
-	adjust_search(Search0, Search),
+scheme(Uri, UriQQ) :-
+	uri_data(scheme, Uri, Scheme),
+	uriqq_data(scheme, UriQQ, Scheme).
 
-	uri_data(fragment, Components, Fragment),
-	make_uriqq([ scheme(Scheme)
-		   , user(User)
-		   , password(Pass)
-		   , host(Host)
-		   , port(Port)
-		   , path(Path)
-		   , search(Search)
-		   , fragment(Fragment)
-	           ], Uri).
+authority(Uri, UriQQ) :-
+	uri_data(authority, Uri, Authority),
+	uri_authority_data(user,     As, User),
+	uri_authority_data(password, As, Password),
+	uri_authority_data(host,     As, Host),
+	uri_authority_data(port,     As, Port),
 
-% parse a URI, accounting for user's preferred base URL
-parse_uri(Atom, Components) :-
-	uri_components(Atom, Components0),
-	uri_data(scheme, Components0, Scheme),
-	parse_uri(Scheme, Atom, Components0, Components).
-parse_uri(Scheme, Atom, _, Components) :-
-	var(Scheme),
+	uriqq_data(user,     UriQQ, User),
+	uriqq_data(password, UriQQ, Password),
+	uriqq_data(host,     UriQQ, Host),
+	uriqq_data(port,     UriQQ, Port),
+
+	( var(Authority), var(User), var(Password), var(Host), var(Port)
+	; uri_authority_components(Authority, As)
+	).
+
+path(Uri, UriQQ) :-
+	uri_data(path, Uri, PathA),
+	uriqq_data(path, UriQQ, PathB),
+	( var(PathA), var(PathB)
+	; atomic_list_concat(PathB,/,PathA)
+	).
+
+search(Uri, UriQQ) :-
+	uri_data(search, Uri, Search),
+	uriqq_data(search, UriQQ, Pairs),
+	( var(Search), var(Pairs)
+	; atom(Search), atom_concat('$', _, Search), Pairs=Search
+	; uri_query_components(Search, Pairs)
+	).
+
+fragment(Uri, UriQQ) :-
+	uri_data(fragment, Uri, Fragment),
+	uriqq_data(fragment, UriQQ, Fragment).
+
+replace_variables(Vars, Term0, Term) :-
+	% $-prefixed variable needing substitution
+	atom(Term0),
+	atom_concat('$', Name, Term0),
 	!,
-	atom_concat('http://', Atom, Uri),
-	uri_components(Uri, Components).
-parse_uri(Scheme, _, Components, Components) :-
-	nonvar(Scheme).
-
-% relation between the path for uri_components/2 and uriqq
-adjust_path('', []) :- !.
-adjust_path(Path, List) :-
-	atomic_list_concat(List, '/', Path).
-
-% relation between the search for uri_components/2 and uriqq
-adjust_search(Search0, Search) :-
-	var(Search0),
+	( memberchk(Name=Value, Vars) ->
+	    Term = Value
+	; % otherwise ->
+	    Term = Term0
+	).
+replace_variables(Vars, Term0, Term) :-
+	% compound term needing recursive replacement
+	nonvar(Term0),
+	Term0 =.. [Name|Args0],
 	!,
-	Search = ''.
-adjust_search(Search, Search).
-
-% relation between the authority for uri_components/2 and uriqq
-authority_parts(Authority, User, Pass, Host, Port) :-
-	uri_authority_components(Authority, As),
-	uri_authority_data(user, As, User),
-	uri_authority_data(password, As, Pass),
-	uri_authority_data(host, As, Host),
-	uri_authority_data(port, As, Port).
-
+	maplist(replace_variables(Vars), Args0, Args),
+	Term =.. [Name|Args].
+replace_variables(_, Term, Term) :-
+	% leave everything else alone
+	true.
 
 % parse quasiquotation into a result
-qq(Stream, Vars, Result-Vars) :-
+qq(Stream, Vars, Result) :-
 	read_stream_to_codes(Stream, Codes),
 	atom_codes(Atom, Codes),
+	qq_an_atom(Atom, Vars, Result).
+
+qq_an_atom(Atom, Vars, Result) :-
 	atom_uri(Atom, Uri0),
-	replace_variables(Vars, Uri0, Uri),
-	atom_uri(Result, Uri).
+	replace_variables(Vars, Uri0, Result).
 
 :- quasi_quotation_syntax(uri).
 uri(Content,_Args,Vars,Result) :-
 	with_quasi_quotation_input(Content, Stream, qq(Stream,Vars,Result)).
+
+/*
+:- use_module(library(function_expansion)).
+user:function_expansion(UriQQ, Atom, atom_uri(Atom,UriQQ)) :-
+	functor(UriQQ, uriqq, 8).
+*/
