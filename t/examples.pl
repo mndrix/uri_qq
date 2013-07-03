@@ -40,6 +40,4 @@
     A = one,
     B = two,
     U = {|uri||https://example.org/q?a=$A&b=$B|},
-    U = 'https://example.org/q?a=1&b=2'.
-
-:- listing.
+    U = 'https://example.org/q?a=one&b=two'.

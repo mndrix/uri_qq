@@ -110,7 +110,7 @@ replace_variables(_, Term, Term) :-
 	true.
 
 % parse quasiquotation into a result
-qq(Stream, Vars, Result) :-
+qq(Stream, Vars, uri_func(Result)) :-
 	read_stream_to_codes(Stream, Codes),
 	atom_codes(Atom, Codes),
 	qq_an_atom(Atom, Vars, Result).
@@ -123,8 +123,8 @@ qq_an_atom(Atom, Vars, Result) :-
 uri(Content,_Args,Vars,Result) :-
 	with_quasi_quotation_input(Content, Stream, qq(Stream,Vars,Result)).
 
-/*
 :- use_module(library(function_expansion)).
-user:function_expansion(UriQQ, Atom, atom_uri(Atom,UriQQ)) :-
-	functor(UriQQ, uriqq, 8).
-*/
+user:function_expansion( uri_func(UriQQ)
+                       , Atom
+                       , once(uri_qq:atom_uri(Atom,UriQQ))
+                       ).
