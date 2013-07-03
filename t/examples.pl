@@ -38,6 +38,6 @@
 
 'interpolate query parameters' :-
     A = one,
-    B = two,
+    B = 2,
     U = {|uri||https://example.org/q?a=$A&b=$B|},
-    U = 'https://example.org/q?a=one&b=two'.
+    U = 'https://example.org/q?a=one&b=2'.
