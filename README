@@ -72,5 +72,7 @@ Using SWI-Prolog 6.3.16 or later:
 
     ?- pack_install(uri_qq).
 
+For repository and pull requests, see https://github.com/mndrix/uri_qq
+
 @author Michael Hendricks <michael@ndrix.org>
 @license BSD
