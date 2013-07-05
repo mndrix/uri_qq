@@ -110,10 +110,20 @@ replace_variables(_, Term, Term) :-
 	true.
 
 % parse quasiquotation into a result
-qq(Stream, Vars, uri_func(Result)) :-
+qq(Stream, Vars, Result) :-
 	read_stream_to_codes(Stream, Codes),
 	atom_codes(Atom, Codes),
-	qq_an_atom(Atom, Vars, Result).
+	qq_an_atom(Atom, Vars, UriQQ),
+    uriqq_data(scheme, UriQQ, Scheme),
+    ( var(Scheme) ->
+        ( memberchk('__uri_qq_base'=Base, Vars) ->
+            Result = uri_relative(Base, UriQQ)
+        ; % otherwise ->
+            Result = uri_suffix(UriQQ)
+        )
+    ; % otherwise ->
+        Result = uri_absolute(UriQQ)
+    ).
 
 qq_an_atom(Atom, Vars, Result) :-
 	atom_uri(Atom, Uri0),
@@ -123,8 +133,21 @@ qq_an_atom(Atom, Vars, Result) :-
 uri(Content,_Args,Vars,Result) :-
 	with_quasi_quotation_input(Content, Stream, qq(Stream,Vars,Result)).
 
+
 :- use_module(library(function_expansion)).
-user:function_expansion( uri_func(UriQQ)
+user:function_expansion( uri_absolute(UriQQ)
                        , Atom
                        , once(uri_qq:atom_uri(Atom,UriQQ))
+                       ).
+user:function_expansion( uri_relative(Base, UriQQ)
+                       , Atom
+                       , ( once(uri_qq:atom_uri(RelUri,UriQQ))
+                         , uri_resolve(RelUri, Base, Atom)
+                         )
+                       ).
+user:function_expansion( uri_suffix(UriQQ)
+                       , Atom
+                       , ( once(uri_qq:atom_uri(Suffix,UriQQ))
+                         , atom_concat('http://', Suffix, Atom)
+                         )
                        ).

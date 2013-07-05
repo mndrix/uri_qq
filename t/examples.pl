@@ -8,35 +8,32 @@
     U = {|uri||http://example.com/path?query=yes|},
     U = 'http://example.com/path?query=yes'.
 
-/*
-'implicit URI scheme' :-
+'suffix URI reference' :-
     U = {|uri||example.com/path|},
     U = 'http://example.com/path'.
-*/
 
-/*
-'relative URIs' :-
-    uri_qq(base, 'https://example.org'),
+'relative URI reference' :-
+    __uri_qq_base = 'https://example.org/path/',
+    U = {|uri||to/resource|},
     U = {|uri||/path/to/resource|},
     U = 'https://example.org/path/to/resource'.
-*/
 
 'interpolate path (no query)' :-
     Path = 'somewhere',
-    U = {|uri||http://example.net/$Path|},
+    U = {|uri||example.net/$Path|},
     U = 'http://example.net/somewhere'.
 
 'interpolate path (with query)' :-
-    Path = path_to_resource,
+    Path = 'path/to/resource',
     U = {|uri||http://example.org/$Path?a=b|},
-    U = 'http://example.org/path_to_resource?a=b'.
+    U = 'http://example.org/path/to/resource?a=b'.
 
 'interpolate entire query' :-
-    Query = [a=one, b=two],
+    Query = [a=1, b=two],
     U = {|uri||http://example.org/q?$Query|},
-    U = 'http://example.org/q?a=one&b=two'.
+    U = 'http://example.org/q?a=1&b=two'.
 
-'interpolate query parameters' :-
+'interpolate individual query parameters' :-
     A = one,
     B = 2,
     U = {|uri||https://example.org/q?a=$A&b=$B|},
