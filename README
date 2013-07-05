@@ -1,15 +1,74 @@
 # Synopsis
 
     :- use_module(library(uri_qq)).
+    :- use_module(library(http/http_client)).
     main :-
-        % give one motivating example
-        true.
+        Path = search,
+        Params = [q='prolog is awesome'],
+        http_get({|uri||google.com/$Path?$Params|}, Content, []),
+        write(Content).
 
 # Description
 
+This module makes it easy to build complex URIs out of component
+parts.  All necessary escaping is done automatically.  In nearly all
+cases, this is more convenient than using library(uri) directly.
+
+In most circumstances, you can just use `$Name` anywhere inside the
+URI and the runtime value of variable `Name` will be inserted at that
+location.  library(uri_qq) also supports the following less obvious
+features:
+
+## Suffix References
+
+It quickly gets annoying to type and read `http://` all over the
+place.  If you omit the scheme in a URI template, `http://` is
+inserted automatically.  See the Synopsis above.
+
+Also see Relative References below.
+
+## Query interpolation
+
+There are two ways to build dynamic queries for a URI.  The first
+way is to interpolate a key or a value directly in the URI template:
+
+    Name = name,
+    Value = value,
+    U = {|uri||example.com/q?name=$Value|},
+    U = {|uri||example.com/q?$Name=value|},
+
+The second way is to build a list of `Key=Value` pairs and interpolate
+the entire query.  This example builds the same `U` value as above:
+
+    Query = [Name=name, Value=value],
+    U = {|uri||example.com/q?$Query|},
+
+## Relative References
+
+Sometimes you need to create many URIs relative to a single base URI.
+To avoid repeating content and to get all the convenience you
+expect from relative URIs, you can specify a local base URI by setting
+a special variable `__uri_qq_base` like this:
+
+    __uri_qq_base = 'http://www.example.org/path/to/',
+    U1 = {|uri||foo#1|},
+    U2 = {|uri||foo#2|},
+    U3 = {|uri||../goes/elsewhere|},
+
+The quasiquoter detects that variable at compile time.  When it encounters
+a relative URI in the clause, it's reloved against the base URI to
+produce an absolute URI.
+
+# Bugs
+
+SWI-Prolog quasiquotation doesn't see variables used inside a
+quasiquoted text.  That causes it to generate singleton variables
+warnings when they're not really appropriate.  Until SWI fixes this bug,
+you can work around it with named singleton variables.
+
 # Installation
 
-Using SWI-Prolog 6.3 or later:
+Using SWI-Prolog 6.3.16 or later:
 
     ?- pack_install(uri_qq).
 
