@@ -58,6 +58,10 @@ first argument of the quasiquoter like this:
 When it encounters a relative URI in the clause, it's resolved against
 the base URI to produce an absolute URI.
 
+# Changes in this Version
+
+  * Replace `__uri_qq_base` with `{|uri(Base)||...}`
+  * Improve documentation
 
 # Installation
 
