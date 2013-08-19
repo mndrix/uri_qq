@@ -73,5 +73,7 @@ Using SWI-Prolog 6.3.16 or later:
 
 For repository and pull requests, see https://github.com/mndrix/uri_qq
 
+This module uses [semantic versioning](http://semver.org/).
+
 @author Michael Hendricks <michael@ndrix.org>
 @license BSD
