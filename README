@@ -40,7 +40,7 @@ way is to interpolate a key or a value directly in the URI template:
 The second way is to build a list of `Key=Value` pairs and interpolate
 the entire query.  This example builds the same `U` value as above:
 
-    Query = [Name=name, Value=value],
+    Query = [name=value],
     U = {|uri||example.com/q?$Query|},
 
 ## Relative References
