@@ -13,9 +13,9 @@
     U = 'http://example.com/path'.
 
 'relative URI reference' :-
-    __uri_qq_base = 'https://example.org/path/',
-    U = {|uri||to/resource|},
-    U = {|uri||/path/to/resource|},
+    Base = 'https://example.org/path/',
+    U = {|uri(Base)||to/resource|},
+    U = {|uri(Base)||/path/to/resource|},
     U = 'https://example.org/path/to/resource'.
 
 'interpolate path (no query)' :-

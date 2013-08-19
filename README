@@ -47,17 +47,16 @@ the entire query.  This example builds the same `U` value as above:
 
 Sometimes you need to create many URIs relative to a single base URI.
 To avoid repeating content and to get all the convenience you
-expect from relative URIs, you can specify a local base URI by setting
-a special variable `__uri_qq_base` like this:
+expect from relative URIs, you can specify a local base URI as the
+first argument of the quasiquoter like this:
 
-    __uri_qq_base = 'http://www.example.org/path/to/',
-    U1 = {|uri||foo#1|},
-    U2 = {|uri||foo#2|},
-    U3 = {|uri||../goes/elsewhere|},
+    Base = 'http://www.example.org/path/to/',
+    U1 = {|uri(Base)||foo#1|},
+    U2 = {|uri(Base)||foo#2|},
+    U3 = {|uri(Base)||../goes/elsewhere|},
 
-The quasiquoter detects that variable at compile time.  When it encounters
-a relative URI in the clause, it's reloved against the base URI to
-produce an absolute URI.
+When it encounters a relative URI in the clause, it's resolved against
+the base URI to produce an absolute URI.
 
 # Bugs
 

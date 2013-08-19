@@ -110,13 +110,13 @@ replace_variables(_, Term, Term) :-
 	true.
 
 % parse quasiquotation into a result
-qq(Stream, Vars, Result) :-
+qq(Stream, Vars, MaybeBase, Result) :-
 	read_stream_to_codes(Stream, Codes),
 	atom_codes(Atom, Codes),
 	qq_an_atom(Atom, Vars, UriQQ),
     uriqq_data(scheme, UriQQ, Scheme),
     ( var(Scheme) ->
-        ( memberchk('__uri_qq_base'=Base, Vars) ->
+        ( MaybeBase = just(Base) ->
             Result = uri_relative(Base, UriQQ)
         ; % otherwise ->
             Result = uri_suffix(UriQQ)
@@ -130,8 +130,13 @@ qq_an_atom(Atom, Vars, Result) :-
 	replace_variables(Vars, Uri0, Result).
 
 :- quasi_quotation_syntax(uri).
-uri(Content,_Args,Vars,Result) :-
-	with_quasi_quotation_input(Content, Stream, qq(Stream,Vars,Result)).
+uri(Content,Args,Vars,Result) :-
+    ( Args = [Base] ->
+        MaybeBase = just(Base)
+    ; % otherwise ->
+        MaybeBase = none
+    ),
+	with_quasi_quotation_input(Content, Stream, qq(Stream,Vars,MaybeBase,Result)).
 
 
 :- use_module(library(function_expansion)).
