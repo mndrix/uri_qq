@@ -58,12 +58,6 @@ first argument of the quasiquoter like this:
 When it encounters a relative URI in the clause, it's resolved against
 the base URI to produce an absolute URI.
 
-# Bugs
-
-SWI-Prolog quasiquotation doesn't see variables used inside a
-quasiquoted text.  That causes it to generate singleton variables
-warnings when they're not really appropriate.  Until SWI fixes this bug,
-you can work around it with named singleton variables.
 
 # Installation
 
