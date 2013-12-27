@@ -81,6 +81,9 @@ search(Uri, UriQQ) :-
     uriqq_data(search, UriQQ, Pairs),
     ( var(Search), var(Pairs)
     ; atom(Search), atom_concat('$', _, Search), Pairs=Search
+    ; is_dict(Pairs),
+      dict_pairs(Pairs, _, Pairs1),
+      uri_query_components(Search, Pairs1)
     ; uri_query_components(Search, Pairs)
     ).
 

@@ -33,6 +33,11 @@
     U = {|uri||http://example.org/q?$Query|},
     U = 'http://example.org/q?a=1&b=two'.
 
+'interpolate entire query (as a dict)' :-
+    Query = _{alpha: a, beta: b},
+    U = {|uri||http://example.org/q?$Query|},
+    U = 'http://example.org/q?alpha=a&beta=b'.
+
 'interpolate individual query parameters' :-
     A = one,
     B = 2,
