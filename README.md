@@ -60,8 +60,8 @@ the base URI to produce an absolute URI.
 
 # Changes in this Version
 
-  * Replace `__uri_qq_base` with `{|uri(Base)||...}`
-  * Improve documentation
+  * Allow a dict to interpolate a as URI query
+  * Modernize pack layout
 
 # Installation
 
