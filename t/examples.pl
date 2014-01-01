@@ -15,9 +15,11 @@
 'relative URI reference' :-
     Base = 'https://example.org/path/',
     Path = 'to/resource',
+    PathTerm = to/resource,
     U = {|uri(Base)||to/resource|},
     U = {|uri(Base)||/path/to/resource|},
     U = {|uri(Base)||$Path|},
+    U = {|uri(Base)||$PathTerm|},
     U = 'https://example.org/path/to/resource'.
 
 'interpolate path (no query)' :-
@@ -27,7 +29,12 @@
 
 'interpolate path (with query)' :-
     Path = 'path/to/resource',
+    PathTerm = path/to/resource,
+    A = path/to,
+    B = resource,
     U = {|uri||http://example.org/$Path?a=b|},
+    U = {|uri||http://example.org/$PathTerm?a=b|},
+    U = {|uri||http://example.org/$A/$B?a=b|},
     U = 'http://example.org/path/to/resource?a=b'.
 
 'interpolate entire query' :-

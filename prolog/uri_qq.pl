@@ -73,6 +73,9 @@ path(Uri, UriQQ) :-
     uri_data(path, Uri, PathA),
     uriqq_data(path, UriQQ, PathB),
     ( var(PathA), var(PathB)
+    ; nonvar(PathB),
+      maplist(path_term,PathC,PathB),
+      atomic_list_concat(PathC,/,PathA)
     ; atomic_list_concat(PathB,/,PathA)
     ).
 
@@ -111,6 +114,33 @@ replace_variables(Vars, Term0, Term) :-
 replace_variables(_, Term, Term) :-
     % leave everything else alone
     true.
+
+path_term(Path, Term) :-
+    var(Path),
+    Term = _/_,
+    !,
+    list_slashes(PathList, Term),
+    atomic_list_concat(PathList, /, Path).
+path_term(Path, Term) :-
+    atom(Term),
+    Path = Term.
+
+% relate a list to a slash-separated term
+list_slashes(List, Slashes) :-
+    nonvar(List),
+    !,
+    reverse(List, ReverseList),
+    list_slashes_(ReverseList, Slashes).
+list_slashes(List, Slashes) :-
+    nonvar(Slashes),
+    list_slashes_(ReverseList, Slashes),
+    reverse(ReverseList, List).
+
+list_slashes_([Tail|Path], Head/Tail) :-
+    Path \== [],
+    !,
+    list_slashes_(Path, Head).
+list_slashes_([X], X).
 
 % parse quasiquotation into a result
 qq(Stream, Vars, MaybeBase, Result) :-
