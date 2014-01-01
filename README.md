@@ -60,8 +60,8 @@ the base URI to produce an absolute URI.
 
 # Changes in this Version
 
-  * Allow a dict to interpolate a as URI query
-  * Modernize pack layout
+  * Interpolate path terms like `a/b/c` instead of just atoms
+  * Larger test suite
 
 # Installation
 

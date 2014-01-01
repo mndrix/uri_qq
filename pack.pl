@@ -3,8 +3,8 @@ title('URI quasiquotations').
 
 requires(function_expansion).
 
-version('0.2.0').
-download('http://packs.ndrix.com/uri_qq/uri_qq-0.2.0.tgz').
+version('0.3.0').
+download('http://packs.ndrix.com/uri_qq/uri_qq-0.3.0.tgz').
 
 author('Michael Hendricks','michael@ndrix.org').
 packager('Michael Hendricks','michael@ndrix.org').
