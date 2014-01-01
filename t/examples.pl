@@ -14,8 +14,10 @@
 
 'relative URI reference' :-
     Base = 'https://example.org/path/',
+    Path = 'to/resource',
     U = {|uri(Base)||to/resource|},
     U = {|uri(Base)||/path/to/resource|},
+    U = {|uri(Base)||$Path|},
     U = 'https://example.org/path/to/resource'.
 
 'interpolate path (no query)' :-
