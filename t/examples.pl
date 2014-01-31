@@ -52,3 +52,8 @@
     B = 2,
     U = {|uri||https://example.org/q?a=$A&b=$B|},
     U = 'https://example.org/q?a=one&b=2'.
+
+'interpolate query parameters that need escaping' :-
+    Q = _{u: "http://www.foo.com?q=hi"},
+    U = {|uri||https://bar.org/baz?$Q|},
+    U == 'https://bar.org/baz?u=http://www.foo.com?q%3Dhi'.
